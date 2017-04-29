@@ -18,24 +18,28 @@ import org.xml.sax.SAXException;
 
 public class XMLParser {
 
-	
-	public static List<String> getStockByQuote(String symbol) throws SAXException, IOException, ParserConfigurationException{
-		DocumentBuilderFactory factory =
-				DocumentBuilderFactory.newInstance();
-				DocumentBuilder builder = factory.newDocumentBuilder();
-		String link = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22" + symbol + "%22)&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
-		URL url = new URL(link);
-		InputStream stream = url.openStream();
-		Document doc = builder.parse(new InputSource(stream));
-	
+	/** Saab informatsiooni kindlalt lehelt, kasutades aktsia lühendit. Tagastab List<String> järgnevad väärtustega(Name, LastTradePriceOnly, DaysLow, DaysHigh)*/
+	public static List<String> getStockByQuote(String symbol){
 		List<String> stockInfo = new ArrayList<>();
-		Element root = doc.getDocumentElement();
-		stockInfo.add(root.getElementsByTagName("Name").item(0).getTextContent());
-		stockInfo.add(root.getElementsByTagName("LastTradePriceOnly").item(0).getTextContent());
-		stockInfo.add(root.getElementsByTagName("DaysLow").item(0).getTextContent());
-		stockInfo.add(root.getElementsByTagName("DaysHigh").item(0).getTextContent());
+		try { // TODO Fix horrible mess...
+			DocumentBuilderFactory factory =
+					DocumentBuilderFactory.newInstance();
+					DocumentBuilder builder = factory.newDocumentBuilder();
+			String link = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22" + symbol + "%22)&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys";
+			URL url = new URL(link);
+			InputStream stream = url.openStream();
+			Document doc = builder.parse(new InputSource(stream));
 		
-		stream.close();
+			Element root = doc.getDocumentElement();
+			stockInfo.add(root.getElementsByTagName("Name").item(0).getTextContent());
+			stockInfo.add(root.getElementsByTagName("LastTradePriceOnly").item(0).getTextContent());
+			stockInfo.add(root.getElementsByTagName("DaysLow").item(0).getTextContent());
+			stockInfo.add(root.getElementsByTagName("DaysHigh").item(0).getTextContent());
+			
+			stream.close();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 		return stockInfo;
 	}
 	
