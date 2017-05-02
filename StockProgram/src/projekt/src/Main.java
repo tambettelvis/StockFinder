@@ -9,6 +9,8 @@ import org.xml.sax.SAXException;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -38,8 +40,9 @@ public class Main extends Application {
 	ObservableList stocksListItems = FXCollections.observableArrayList();//Lisame aktsia ListView objekti.
 	ListView stockListView;
 	
-	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException{
-		System.out.println(XMLParser.getStockByQuote("158d").size());
+	StockInfoPanel stockInfoPanel;
+	
+	public static void main(String[] args) {
 		launch(args);
 	}
 	
@@ -57,7 +60,7 @@ public class Main extends Application {
 		topPanel.getChildren().add(title);
 		
 		//Kesk paneel jaguneb kaheks(vasak, parem). Parem paneel näitab aktsia informatsiooni, vasakul on aktsia sisestus.
-		HBox centerPanel = new HBox();
+		HBox centerPanel = new HBox(20);
 		centerPanel.setStyle("-fx-background-color: #e6f7ff;");
 		centerPanel.setPadding(new Insets(10));
 		VBox leftSidePanel = new VBox();
@@ -72,11 +75,15 @@ public class Main extends Application {
 		Label listLabel = new Label("Olemas olevad aktsiad:");
 		listLabel.setFont(new Font("Calibri", 18));
 		stockListView = new ListView<>(stocksListItems);
+		stockListView.getSelectionModel().selectedItemProperty().addListener(new OnListViewItemChange());
 		
 		
 		stockInputPanel.getChildren().addAll(new Label("Lisa akstsia:"), stockSymbolInput, addStock);
 		leftSidePanel.getChildren().addAll(stockInputPanel, listLabel, stockListView);
-		centerPanel.getChildren().add(leftSidePanel);
+		
+		stockInfoPanel = new StockInfoPanel();
+		
+		centerPanel.getChildren().addAll(leftSidePanel, stockInfoPanel);
 		
 		//TODO lisada palju jama siia veel...
 		
@@ -109,7 +116,8 @@ public class Main extends Application {
 			if(e.getSource() == addStock){
 				if(!stockSymbolInput.getText().isEmpty()){
 					List<String> dataFromXML = XMLParser.getStockByQuote(stockSymbolInput.getText());
-					if(!dataFromXML.get(0).isEmpty()){
+					if(!dataFromXML.get(0).isEmpty() && !dataFromXML.get(1).isEmpty() && !dataFromXML.get(2).isEmpty() && !dataFromXML.get(3).isEmpty()){
+						System.out.println(dataFromXML.get(0) + " " + dataFromXML.get(1) + " " + dataFromXML.get(2));
 						new Stock(dataFromXML.get(0), Double.parseDouble(dataFromXML.get(1)), Double.parseDouble(dataFromXML.get(2)),
 									Double.parseDouble(dataFromXML.get(3)));
 						//Lisan aktsia firma nime ArrayListi, mis kuvab aktsia ListView-s.
@@ -123,6 +131,25 @@ public class Main extends Application {
 					
 				}
 			}
+		}
+		
+	}
+	
+	private class OnListViewItemChange implements ChangeListener<String> {
+
+		@Override
+		public void changed(ObservableValue<? extends String> arg0, String oldVal, String newVal) {
+			// TODO Auto-generated method stub
+			for(Stock s : Stock.stocks) {
+				if(s.getName().equals(newVal)) {
+					stockInfoPanel.setStockName(s.getName());
+					stockInfoPanel.setCurrentPrice(s.getCurrentPrice());
+					stockInfoPanel.setDaysLow(s.getDaysLow());
+					stockInfoPanel.setDaysMax(s.getDaysMax());
+					break;
+				}
+			}
+			
 		}
 		
 	}
