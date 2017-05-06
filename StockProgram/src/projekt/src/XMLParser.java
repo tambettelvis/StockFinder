@@ -32,6 +32,7 @@ public class XMLParser {
 		
 			Element root = doc.getDocumentElement();
 			stockInfo.add(root.getElementsByTagName("Name").item(0).getTextContent());
+			stockInfo.add(symbol);
 			stockInfo.add(root.getElementsByTagName("LastTradePriceOnly").item(0).getTextContent());
 			stockInfo.add(root.getElementsByTagName("DaysLow").item(0).getTextContent());
 			stockInfo.add(root.getElementsByTagName("DaysHigh").item(0).getTextContent());

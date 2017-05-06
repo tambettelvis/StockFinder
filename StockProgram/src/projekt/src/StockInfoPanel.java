@@ -1,11 +1,16 @@
 package projekt.src;
 
+import java.util.Calendar;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class StockInfoPanel extends VBox {
 
@@ -13,6 +18,8 @@ public class StockInfoPanel extends VBox {
 	private Label currentPrice;
 	private Label daysLow;
 	private Label daysMax;
+	
+	private PopupGraph graphActive;
 	
 	static int spacing = 10;
 	
@@ -55,14 +62,17 @@ public class StockInfoPanel extends VBox {
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
-				// TODO create new window
-				// TODO Get graph from internet
+				PopupGraph graph = new PopupGraph(stockName.getText());
+				graphActive = graph;
 			}
-			
 		});
 		
 		this.getChildren().addAll(row1, row2, row3, row4, viewGraphButton);
+	}
+	
+	public void updateActiveGraph(Calendar calendar, double value) {
+		graphActive.addData(calendar, value);
+		System.out.println("active graph update: " + calendar.getTimeInMillis() + "; " + value);
 	}
 
 	public String getStockName() {

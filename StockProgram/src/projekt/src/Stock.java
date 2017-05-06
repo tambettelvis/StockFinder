@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Stock {
-
-	private String name;
+ 
+	private String name; //TODO: final?
+	private String tag; //TODO: final?
 	private double currentPrice;
 	private double daysLow;
 	private double daysMax;
 	
 	public static List<Stock> stocks = new ArrayList<Stock>();
 	
-	public Stock(String name, double currentPrice, double daysLow, double daysMax) {
+	public Stock(String name, String tag, double currentPrice, double daysLow, double daysMax) {
 		super();
 		this.name = name;
+		this.tag = tag;
 		this.currentPrice = currentPrice;
 		this.daysLow = daysLow;
 		this.daysMax = daysMax;
@@ -27,6 +29,9 @@ public class Stock {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	public String getTag() {
+		return tag;
 	}
 	public double getCurrentPrice() {
 		return currentPrice;
