@@ -76,7 +76,7 @@ public class Main extends Application {
 		
 		addStock = new Button("Lisa");
 		addStock.setPrefSize(100, 20);
-		addStock.setOnAction(new OnButtonClicked());
+		addStock.setOnAction(new OnButtonClicked(this));
 		
 		Label listLabel = new Label("Olemas olevad aktsiad:");
 		listLabel.setFont(new Font("Calibri", 18));
@@ -113,7 +113,10 @@ public class Main extends Application {
 	private void initialize() {
 		// TODO Auto-generated method stub
 		// TODO load data from files.
-		
+		List<String> stockSymbols = FileManager.getStockSymbolsFromFile();
+		for(String stockSymbol : stockSymbols){
+			addStockToList(stockSymbol);
+		}
 	}
 	
 	private void closeApplication(){
@@ -146,26 +149,40 @@ public class Main extends Application {
 			}
 		}
 	}
+	
+	/** Võtab aktsia informatsiooni XML failist ning lisab selle listi. */
+	public void addStockToList(String symbol){
+		List<String> dataFromXML = XMLParser.getStockByQuote(symbol);
+		if(!dataFromXML.get(0).isEmpty() && !dataFromXML.get(1).isEmpty() && !dataFromXML.get(2).isEmpty() && !dataFromXML.get(3).isEmpty()){
+			if(stocksListItems.contains(dataFromXML.get(0)))
+				return;
+			Stock stock = new Stock(dataFromXML.get(0), dataFromXML.get(1), Double.parseDouble(dataFromXML.get(2)), Double.parseDouble(dataFromXML.get(3)),
+						Double.parseDouble(dataFromXML.get(4)));
+			//Lisan aktsia firma nime ArrayListi, mis kuvab aktsia ListView-s.
+			stocksListItems.add(dataFromXML.get(0));
+			
+			//TODO Save to file...
+			FileManager.saveStockToFile(stock);
+		} else {
+			//TODO Aktsiat ei eksisteeri...
+		}
+	}
 
 	/** OnButtonClicked käsitleb nuppude vajutust. */
 	private class OnButtonClicked implements EventHandler<ActionEvent> {
 
+		Main main;
+		
+		public OnButtonClicked(Main main) {
+			this.main = main;
+		}
+		
 		@Override
 		public void handle(ActionEvent e) {
 			if(e.getSource() == addStock){
 				if(!stockSymbolInput.getText().isEmpty()){
-					List<String> dataFromXML = XMLParser.getStockByQuote(stockSymbolInput.getText());
-					if(!dataFromXML.get(0).isEmpty() && !dataFromXML.get(1).isEmpty() && !dataFromXML.get(2).isEmpty() && !dataFromXML.get(3).isEmpty()){
-						System.out.println(dataFromXML.get(0) + " " + dataFromXML.get(1) + " " + dataFromXML.get(2));
-						new Stock(dataFromXML.get(0), dataFromXML.get(1), Double.parseDouble(dataFromXML.get(2)), Double.parseDouble(dataFromXML.get(3)),
-									Double.parseDouble(dataFromXML.get(4)));
-						//Lisan aktsia firma nime ArrayListi, mis kuvab aktsia ListView-s.
-						stocksListItems.add(dataFromXML.get(0));
-						
-						//TODO Save to file...
-					} else {
-						//TODO Aktsiat ei eksisteeri...
-					}
+					main.addStockToList(stockSymbolInput.getText());
+					//TODO Check if stock already exists.
 				} else {
 					
 				}
