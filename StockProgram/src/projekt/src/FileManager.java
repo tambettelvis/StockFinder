@@ -38,7 +38,6 @@ public class FileManager {
 	}
 	
 	public static void clearFile(String fileName){
-		File file = new File(fileName);
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
 			writer.write("");
@@ -83,6 +82,21 @@ public class FileManager {
 		return map;
 	}
 	
+	public static boolean isStockInFile(String symbol){
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(STOCKS_FILE));
+			String line = reader.readLine();
+			reader.close();
+			if(line.contains(symbol)){
+				return true;
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	//YHOO|hind;aeg|hind;aeg|
 	public static void saveStockPrice(String symbol, double price){
 		File file = new File(STOCK_PRICES_FILE);
@@ -97,7 +111,8 @@ public class FileManager {
 				}
 				writer.close();
 			} else {
-				BufferedWriter writer = new BufferedWriter(new FileWriter(STOCK_PRICES_FILE));
+				System.out.println("STOCK DOESN't EXIST : " + symbol);
+				BufferedWriter writer = new BufferedWriter(new FileWriter(STOCK_PRICES_FILE, true));
 				writer.append(symbol + "|" + price + ";" + System.currentTimeMillis() + "|" + System.lineSeparator());
 				writer.close();
 			}

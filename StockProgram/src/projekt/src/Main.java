@@ -117,7 +117,6 @@ public class Main extends Application {
 		// TODO Auto-generated method stub
 		// TODO load data from files.
 		List<String> stockSymbols = FileManager.getStockSymbolsFromFile();
-		FileManager.clearFile(FileManager.STOCKS_FILE);
 		for(String stockSymbol : stockSymbols){
 			addStockToList(stockSymbol);
 		}
@@ -152,6 +151,9 @@ public class Main extends Application {
 			stockInfoPanel.setCurrentPrice(stock.getCurrentPrice());
 			stockInfoPanel.setDaysLow(stock.getDaysLow());
 			stockInfoPanel.setDaysMax(stock.getDaysMax());
+			stockInfoPanel.setChange(stock.getChange());
+			stockInfoPanel.setMarketCapitalization(stock.getMarketCapitalization());
+			stockInfoPanel.setDaysRange(stock.getDaysRange());
 			
 			//uuenda kasutusel olev graafik
 			
@@ -165,13 +167,15 @@ public class Main extends Application {
 			if(stocksListItems.contains(dataFromXML.get(0)))
 				return;
 			Stock stock = new Stock(dataFromXML.get(0), dataFromXML.get(1), Double.parseDouble(dataFromXML.get(2)), Double.parseDouble(dataFromXML.get(3)),
-						Double.parseDouble(dataFromXML.get(4)));
+						Double.parseDouble(dataFromXML.get(4)), Double.parseDouble(dataFromXML.get(5)), dataFromXML.get(6), dataFromXML.get(7));
 			
 			//Lisan aktsia firma nime ArrayListi, mis kuvab aktsia ListView-s.
 			stocksListItems.add(dataFromXML.get(0));
 			
 			//TODO Save to file...
-			FileManager.saveStockToFile(stock);
+			if(!FileManager.isStockInFile(symbol)){
+				FileManager.saveStockToFile(stock);
+			}
 		} else {
 			//TODO Aktsiat ei eksisteeri...
 		}
@@ -190,7 +194,7 @@ public class Main extends Application {
 		public void handle(ActionEvent e) {
 			if(e.getSource() == addStock){
 				if(!stockSymbolInput.getText().isEmpty()){
-					main.addStockToList(stockSymbolInput.getText());
+					main.addStockToList(stockSymbolInput.getText().toUpperCase());
 					//TODO Check if stock already exists.
 				} else {
 					
@@ -211,6 +215,9 @@ public class Main extends Application {
 					stockInfoPanel.setCurrentPrice(s.getCurrentPrice());
 					stockInfoPanel.setDaysLow(s.getDaysLow());
 					stockInfoPanel.setDaysMax(s.getDaysMax());
+					stockInfoPanel.setChange(s.getChange());
+					stockInfoPanel.setMarketCapitalization(s.getMarketCapitalization());
+					stockInfoPanel.setDaysRange(s.getDaysRange());
 					break;
 				}
 			}

@@ -21,7 +21,8 @@ public class XMLParser {
 	/** Saab informatsiooni kindlalt lehelt, kasutades aktsia lühendit. Tagastab List<String> järgnevad väärtustega(Name, LastTradePriceOnly, DaysLow, DaysHigh)*/
 	public static List<String> getStockByQuote(String symbol){
 		List<String> stockInfo = new ArrayList<>();
-		try { // TODO Fix horrible mess...
+		// TODO Fix horrible mess...
+		try{
 			DocumentBuilderFactory factory =
 					DocumentBuilderFactory.newInstance();
 					DocumentBuilder builder = factory.newDocumentBuilder();
@@ -31,14 +32,27 @@ public class XMLParser {
 			Document doc = builder.parse(new InputSource(stream));
 		
 			Element root = doc.getDocumentElement();
+			String stockCompanyName = root.getElementsByTagName("Name").item(0).getTextContent();
+			if(stockCompanyName.isEmpty()){
+				throw new EmptyXMLException();
+			}
 			stockInfo.add(root.getElementsByTagName("Name").item(0).getTextContent());
 			stockInfo.add(symbol);
 			stockInfo.add(root.getElementsByTagName("LastTradePriceOnly").item(0).getTextContent());
 			stockInfo.add(root.getElementsByTagName("DaysLow").item(0).getTextContent());
 			stockInfo.add(root.getElementsByTagName("DaysHigh").item(0).getTextContent());
-			
+			stockInfo.add(root.getElementsByTagName("Change").item(0).getTextContent());
+			stockInfo.add(root.getElementsByTagName("MarketCapitalization").item(0).getTextContent());
+			stockInfo.add(root.getElementsByTagName("DaysRange").item(0).getTextContent());
+
 			stream.close();
-		} catch (Exception e){
+		} catch(IOException e){
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (EmptyXMLException e) {
 			e.printStackTrace();
 		}
 		return stockInfo;
