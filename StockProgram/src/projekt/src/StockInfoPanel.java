@@ -1,6 +1,8 @@
 package projekt.src;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Map;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,6 +20,8 @@ public class StockInfoPanel extends VBox {
 	private Label currentPrice;
 	private Label daysLow;
 	private Label daysMax;
+	
+	private String symbol;
 	
 	private PopupGraph graphActive;
 	
@@ -38,8 +42,8 @@ public class StockInfoPanel extends VBox {
 	private void createLabels(String stockString, String currentPriceString, String daysLowString, String daysMaxString){
 		Label lbl1 = new Label("Aktsia nimetus: ");
 		Label lbl2 = new Label("Hetke hind: ");
-		Label lbl3 = new Label("Päeva madalaim hind: ");
-		Label lbl4 = new Label("Päeva kõrgeim hind: ");
+		Label lbl3 = new Label("Pï¿½eva madalaim hind: ");
+		Label lbl4 = new Label("Pï¿½eva kï¿½rgeim hind: ");
 		
 		
 		stockName = new Label(stockString);
@@ -62,8 +66,28 @@ public class StockInfoPanel extends VBox {
 
 			@Override
 			public void handle(ActionEvent event) {
+				if(stockName == null || stockName.getText().isEmpty()){
+					return;
+				}
 				PopupGraph graph = new PopupGraph(stockName.getText());
 				graphActive = graph;
+				
+				String symbol = null;
+				for(Stock s : Stock.stocks){
+					if(s.getName().equals(getStockName())){
+						symbol = s.getTag();
+						break;
+					}
+				}
+				Map<Long, Double> prices = FileManager.getStockPrices(symbol);
+				for (Map.Entry<Long, Double> entry : prices.entrySet())
+				{
+					Calendar c = new GregorianCalendar();
+					c.setTimeInMillis(entry.getKey());
+					System.out.println(c.getTimeInMillis() + " -- " + entry.getValue());
+				    graphActive.addData(c, entry.getValue());
+				}
+				
 			}
 		});
 		
@@ -72,6 +96,7 @@ public class StockInfoPanel extends VBox {
 	
 	public void updateActiveGraph(Calendar calendar, double value) {
 		graphActive.addData(calendar, value);
+		
 		System.out.println("active graph update: " + calendar.getTimeInMillis() + "; " + value);
 	}
 

@@ -39,7 +39,7 @@ public class Main extends Application {
 	public static int width = 800;
 	public static int height = 480;
 	
-	//Aktsia sisestuse tekstiväli.
+	//Aktsia sisestuse tekstivï¿½li.
 	TextField stockSymbolInput = new TextField();
 	Button addStock;
 	
@@ -48,6 +48,8 @@ public class Main extends Application {
 	
 	StockInfoPanel stockInfoPanel;
 	
+	Timeline mainLoop;
+	
 	public static void main(String[] args) {
 		launch(args);
 	}
@@ -55,9 +57,9 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		initialize();
-		//Borderpanel - põhipaneel, kuhu lähevad kõik teised elemendid.
+		//Borderpanel - pï¿½hipaneel, kuhu lï¿½hevad kï¿½ik teised elemendid.
 		BorderPane borderPanel = new BorderPane();
-		//TopPaneli lähevad kõik päise(header) elemendid.
+		//TopPaneli lï¿½hevad kï¿½ik pï¿½ise(header) elemendid.
 		HBox topPanel = new HBox();
 		topPanel.setPrefHeight(50);
 		topPanel.setStyle("-fx-background-color: #b3e6ff;");
@@ -65,7 +67,7 @@ public class Main extends Application {
 		title.setFont(new Font("Calibri", 18));
 		topPanel.getChildren().add(title);
 		
-		//Keskpaneel jaguneb kaheks(vasak, parem). Parem paneel näitab aktsia informatsiooni, vasakul on aktsia sisestus.
+		//Keskpaneel jaguneb kaheks(vasak, parem). Parem paneel nï¿½itab aktsia informatsiooni, vasakul on aktsia sisestus.
 		HBox centerPanel = new HBox(20);
 		centerPanel.setStyle("-fx-background-color: #e6f7ff;");
 		centerPanel.setPadding(new Insets(10));
@@ -93,7 +95,7 @@ public class Main extends Application {
 		
 		//TODO lisada palju jama siia veel...
 		
-		//Lisame paneelid põhipaneelile.
+		//Lisame paneelid pï¿½hipaneelile.
 		borderPanel.setTop(topPanel);
 		borderPanel.setCenter(centerPanel);
 		Scene scene = new Scene(borderPanel, width, height);
@@ -105,23 +107,29 @@ public class Main extends Application {
 		
 		//peatsukkel
 		long updateTime = 10000; //millisekundit; XML'i lugemine votab palju, ei saa liiga tihti uuendada.
-		Timeline mainLoop = new Timeline(new KeyFrame(Duration.millis(updateTime), (event -> update())));
+		mainLoop = new Timeline(new KeyFrame(Duration.millis(updateTime), (event -> update())));
 		mainLoop.setCycleCount(Timeline.INDEFINITE);
 		mainLoop.play();
+		////
 	}
 	
 	private void initialize() {
 		// TODO Auto-generated method stub
 		// TODO load data from files.
 		List<String> stockSymbols = FileManager.getStockSymbolsFromFile();
+		FileManager.clearFile(FileManager.STOCKS_FILE);
 		for(String stockSymbol : stockSymbols){
 			addStockToList(stockSymbol);
 		}
+		
+		
 	}
 	
 	private void closeApplication(){
 		// TODO Save data to file.
+		mainLoop.stop();
 		Platform.exit();
+		System.exit(0);
 	}
 	
 	private void update() {
@@ -129,28 +137,28 @@ public class Main extends Application {
 		Calendar calendar = new GregorianCalendar(); //aeg + kalender
 		
 		for(Stock stock: Stock.stocks) {
-			if(stock.getName().equals(stock_name)) {
-				//saa uued andmed
-				List<String> dataFromXML = XMLParser.getStockByQuote(stock.getTag());
-				stock.setCurrentPrice(Double.parseDouble(dataFromXML.get(2)));
-				stock.setDaysLow(Double.parseDouble(dataFromXML.get(3)));
-				stock.setDaysMax(Double.parseDouble(dataFromXML.get(4)));
-				
-				//asenda vanad andmed
-				stockInfoPanel.setStockName(stock.getName()); //pole uldjuhul vajalik
-				stockInfoPanel.setCurrentPrice(stock.getCurrentPrice());
-				stockInfoPanel.setDaysLow(stock.getDaysLow());
-				stockInfoPanel.setDaysMax(stock.getDaysMax());
-				
-				//uuenda kasutusel olev graafik
-				stockInfoPanel.updateActiveGraph(calendar, stock.getCurrentPrice());
-				
-				break;
-			}
+			
+			//saa uued andmed
+			List<String> dataFromXML = XMLParser.getStockByQuote(stock.getTag());
+			stock.setCurrentPrice(Double.parseDouble(dataFromXML.get(2)));
+			stock.setDaysLow(Double.parseDouble(dataFromXML.get(3)));
+			stock.setDaysMax(Double.parseDouble(dataFromXML.get(4)));
+			
+			System.out.println("ke");
+			FileManager.saveStockPrice(stock.getTag(), stock.getCurrentPrice());
+			
+			//asenda vanad andmed
+			stockInfoPanel.setStockName(stock.getName()); //pole uldjuhul vajalik
+			stockInfoPanel.setCurrentPrice(stock.getCurrentPrice());
+			stockInfoPanel.setDaysLow(stock.getDaysLow());
+			stockInfoPanel.setDaysMax(stock.getDaysMax());
+			
+			//uuenda kasutusel olev graafik
+			
 		}
 	}
 	
-	/** Võtab aktsia informatsiooni XML failist ning lisab selle listi. */
+	/** Vï¿½tab aktsia informatsiooni XML failist ning lisab selle listi. */
 	public void addStockToList(String symbol){
 		List<String> dataFromXML = XMLParser.getStockByQuote(symbol);
 		if(!dataFromXML.get(0).isEmpty() && !dataFromXML.get(1).isEmpty() && !dataFromXML.get(2).isEmpty() && !dataFromXML.get(3).isEmpty()){
@@ -158,6 +166,7 @@ public class Main extends Application {
 				return;
 			Stock stock = new Stock(dataFromXML.get(0), dataFromXML.get(1), Double.parseDouble(dataFromXML.get(2)), Double.parseDouble(dataFromXML.get(3)),
 						Double.parseDouble(dataFromXML.get(4)));
+			
 			//Lisan aktsia firma nime ArrayListi, mis kuvab aktsia ListView-s.
 			stocksListItems.add(dataFromXML.get(0));
 			
@@ -168,7 +177,7 @@ public class Main extends Application {
 		}
 	}
 
-	/** OnButtonClicked käsitleb nuppude vajutust. */
+	/** OnButtonClicked kï¿½sitleb nuppude vajutust. */
 	private class OnButtonClicked implements EventHandler<ActionEvent> {
 
 		Main main;
